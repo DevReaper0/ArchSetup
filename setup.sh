@@ -1,3 +1,10 @@
+if [[ "$XDG_CURRENT_DESKTOP" = "" ]]; then
+    desktop=$(echo "$XDG_DATA_DIRS" | sed 's/.*\(kde\|gnome\).*/\1/')
+else
+    desktop=$XDG_CURRENT_DESKTOP
+fi
+desktop=${desktop,,}
+
 if [[ -z "$1" ]]; then
     if [[ -z "${lite}" ]]; then
         lite=true
@@ -84,14 +91,23 @@ paru -Syu
 cd ..
 rm -rf paru/
 
-paru -S --needed bluez bluez-utils gnome-bluetooth-3.0 nautilus-bluetooth
+paru -S --needed bluez bluez-utils
+if [[ "$desktop" = "gnome" ]]; then
+    paru -S --needed gnome-bluetooth-3.0 nautilus-bluetooth
+fi
 sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
 
 paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
 paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit
-paru -S --needed openssh sshuttle tmux openvpn networkmanager-openvpn resolvconf iio-sensor-proxy
-paru -S --needed extension-manager dconf-editor gdm-tools gnome-browser-connector libappindicator-gtk3 gtk-engine-murrine gnome-themes-standard
+paru -S --needed openssh sshuttle tmux openvpn resolvconf iio-sensor-proxy
+if [[ "$desktop" = "gnome" ]]; then
+    paru -S --needed networkmanager-openvpn
+fi
+paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
+if [[ "$desktop" = "gnome" ]]; then
+    paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
+fi
 paru -S --needed gparted obsidian jetbrains-toolbox brave-beta-bin firefox firefox-extension-arch-search
 if [ "$lite" = false ]; then
     paru -S --needed deskreen-bin davinci-resolve krita aseprite
@@ -107,7 +123,7 @@ if [ "$lite" = false ]; then
     sudo systemctl start g910-gkeys.service
 fi
 if [ "$install_vm" = true ]; then
-    paru -S --needed qemu-full virt-manager dnsmasq quickemu quickgui
+    paru -S --needed qemu-full virt-manager dnsmasq
 fi
 
 sudo sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
@@ -146,7 +162,7 @@ wget  -qO $HOME"/.config/tilix/schemes/oceanic-next.json" https://git.io/v7QaA
 
 sudo gpasswd -a $USER flutterusers
 
-# none, power-profiles-daemon, tlp, auto-cpufreq
+# none, power-profiles-daemon, tlp, auto-cpufreq, auto-cpufreq+tlp
 if [[ $power_management = "power-profiles-daemon" ]]; then
     paru -S --needed power-profiles-daemon
     sudo systemctl enable power-profiles-daemon.service
@@ -196,7 +212,9 @@ xhost +si:localuser:$USER
 xhost -
 
 pip install Pillow
-pip install gnome-extensions-cli
+if [[ "$desktop" = "gnome" ]]; then
+    pip install gnome-extensions-cli
+fi
 
 if [ "$install_pentablet" = true ]; then
     # Install drivers for my drawing tablet
@@ -214,169 +232,177 @@ fi
 git clone https://github.com/DaRubyMiner360/nvim.git ~/.config/nvim
 nvim +PlugInstall +q2
 
-gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"
+if [[ "$desktop" = "gnome" ]]; then
+    gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
+    gext enable user-theme@gnome-shell-extensions.gcampax.github.com
+    gext enable drive-menu@gnome-shell-extensions.gcampax.github.com
+    # Download AATWS - Advanced Alt-Tab Window Switcher
+    gext install advanced-alt-tab@G-dH.github.com
+    gext disable advanced-alt-tab@G-dH.github.com
+    # Download AppIndicator and KStatusNotifierItem Support
+    gext install appindicatorsupport@rgcjonas.gmail.com
+    gext enable appindicatorsupport@rgcjonas.gmail.com
+    # Download Aylur's Widgets
+    gext install widgets@aylur
+    gext enable widgets@aylur
+    # Download Blur my Shell
+    gext install blur-my-shell@aunetx
+    gext enable blur-my-shell@aunetx
+    # Download Click to close overview
+    gext install click-to-close-overview@l3nn4rt.github.io
+    gext enable click-to-close-overview@l3nn4rt.github.io
+    # Download Clipboard Indicator
+    gext install clipboard-indicator@tudmotu.com
+    gext enable clipboard-indicator@tudmotu.com
+    # Download Compiz alike magic lamp effect
+    gext install compiz-alike-magic-lamp-effect@hermes83.github.com
+    gext disable compiz-alike-magic-lamp-effect@hermes83.github.com
+    # Download Compiz windows effect
+    gext install compiz-windows-effect@hermes83.github.com
+    gext disable compiz-windows-effect@hermes83.github.com
+    # Download Coverflow Alt-Tab
+    gext install CoverflowAltTab@palatis.blogspot.com
+    gext enable CoverflowAltTab@palatis.blogspot.com
+    # Download Desktop Cube
+    gext install desktop-cube@schneegans.github.com
+    gext disable desktop-cube@schneegans.github.com
+    # Download Fly-Pie
+    gext install flypie@schneegans.github.com
+    gext disable flypie@schneegans.github.com
+    # Download Gesture Improvements
+    gext install gestureImprovements@gestures
+    gext enable gestureImprovements@gestures
+    # Download Gnome 4x UI Improvements
+    gext install gnome-ui-tune@itstime.tech
+    gext enable gnome-ui-tune@itstime.tech
+    # Download GSConnect
+    gext install gsconnect@andyholmes.github.io
+    gext disable gsconnect@andyholmes.github.io
+    # Download Gtk4 Desktop Icons NG
+    gext install gtk4-ding@smedius.gitlab.com
+    gext disable gtk4-ding@smedius.gitlab.com
+    # Download Just Perfection
+    gext install just-perfection-desktop@just-perfection
+    gext enable just-perfection-desktop@just-perfection
+    # Download Lock Keys
+    gext install lockkeys@vaina.lt
+    gext enable lockkeys@vaina.lt
+    # Download Looking Glass Button
+    gext install lgbutton@glerro.gnome.gitlab.io
+    gext disable lgbutton@glerro.gnome.gitlab.io
+    # Download Native Window Placement
+    gext install native-window-placement@gnome-shell-extensions.gcampax.github.com
+    gext disable native-window-placement@gnome-shell-extensions.gcampax.github.com
+    # Download Night Theme Switcher
+    gext install nightthemeswitcher@romainvigier.fr
+    gext disable nightthemeswitcher@romainvigier.fr
+    # Download Quick Close in Overview
+    gext install middleclickclose@paolo.tranquilli.gmail.com
+    gext enable middleclickclose@paolo.tranquilli.gmail.com
+    # Download Space Bar
+    gext install space-bar@luchrioh
+    gext enable space-bar@luchrioh
+    # Download Status Area Horizontal Spacing
+    gext install status-area-horizontal-spacing@mathematical.coffee.gmail.com
+    gext enable status-area-horizontal-spacing@mathematical.coffee.gmail.com
+    # Download Tray Icons: Reloaded
+    gext install trayIconsReloaded@selfmade.pl
+    gext disable trayIconsReloaded@selfmade.pl
+    # Download Vitals
+    gext install Vitals@CoreCoding.com
+    gext disable Vitals@CoreCoding.com
+    # Download V-Shell (Vertical Workspaces)
+    gext install vertical-workspaces@G-dH.github.com
+    gext disable vertical-workspaces@G-dH.github.com
 
-gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
-gext enable user-theme@gnome-shell-extensions.gcampax.github.com
-gext enable drive-menu@gnome-shell-extensions.gcampax.github.com
-# Download AATWS - Advanced Alt-Tab Window Switcher
-gext install advanced-alt-tab@G-dH.github.com
-gext disable advanced-alt-tab@G-dH.github.com
-# Download AppIndicator and KStatusNotifierItem Support
-gext install appindicatorsupport@rgcjonas.gmail.com
-gext enable appindicatorsupport@rgcjonas.gmail.com
-# Download Aylur's Widgets
-gext install widgets@aylur
-gext enable widgets@aylur
-# Download Blur my Shell
-gext install blur-my-shell@aunetx
-gext enable blur-my-shell@aunetx
-# Download Click to close overview
-gext install click-to-close-overview@l3nn4rt.github.io
-gext enable click-to-close-overview@l3nn4rt.github.io
-# Download Clipboard Indicator
-gext install clipboard-indicator@tudmotu.com
-gext enable clipboard-indicator@tudmotu.com
-# Download Compiz alike magic lamp effect
-gext install compiz-alike-magic-lamp-effect@hermes83.github.com
-gext disable compiz-alike-magic-lamp-effect@hermes83.github.com
-# Download Compiz windows effect
-gext install compiz-windows-effect@hermes83.github.com
-gext disable compiz-windows-effect@hermes83.github.com
-# Download Coverflow Alt-Tab
-gext install CoverflowAltTab@palatis.blogspot.com
-gext enable CoverflowAltTab@palatis.blogspot.com
-# Download Desktop Cube
-gext install desktop-cube@schneegans.github.com
-gext disable desktop-cube@schneegans.github.com
-# Download Fly-Pie
-gext install flypie@schneegans.github.com
-gext disable flypie@schneegans.github.com
-# Download Gesture Improvements
-gext install gestureImprovements@gestures
-gext enable gestureImprovements@gestures
-# Download Gnome 4x UI Improvements
-gext install gnome-ui-tune@itstime.tech
-gext enable gnome-ui-tune@itstime.tech
-# Download GSConnect
-gext install gsconnect@andyholmes.github.io
-gext disable gsconnect@andyholmes.github.io
-# Download Gtk4 Desktop Icons NG
-gext install gtk4-ding@smedius.gitlab.com
-gext disable gtk4-ding@smedius.gitlab.com
-# Download Just Perfection
-gext install just-perfection-desktop@just-perfection
-gext enable just-perfection-desktop@just-perfection
-# Download Lock Keys
-gext install lockkeys@vaina.lt
-gext enable lockkeys@vaina.lt
-# Download Looking Glass Button
-gext install lgbutton@glerro.gnome.gitlab.io
-gext disable lgbutton@glerro.gnome.gitlab.io
-# Download Native Window Placement
-gext install native-window-placement@gnome-shell-extensions.gcampax.github.com
-gext disable native-window-placement@gnome-shell-extensions.gcampax.github.com
-# Download Night Theme Switcher
-gext install nightthemeswitcher@romainvigier.fr
-gext disable nightthemeswitcher@romainvigier.fr
-# Download Quick Close in Overview
-gext install middleclickclose@paolo.tranquilli.gmail.com
-gext enable middleclickclose@paolo.tranquilli.gmail.com
-# Download Space Bar
-gext install space-bar@luchrioh
-gext enable space-bar@luchrioh
-# Download Status Area Horizontal Spacing
-gext install status-area-horizontal-spacing@mathematical.coffee.gmail.com
-gext enable status-area-horizontal-spacing@mathematical.coffee.gmail.com
-# Download Tray Icons: Reloaded
-gext install trayIconsReloaded@selfmade.pl
-gext disable trayIconsReloaded@selfmade.pl
-# Download Vitals
-gext install Vitals@CoreCoding.com
-gext disable Vitals@CoreCoding.com
-# Download V-Shell (Vertical Workspaces)
-gext install vertical-workspaces@G-dH.github.com
-gext disable vertical-workspaces@G-dH.github.com
+    # TODO: Something went wrong during the first test that required a hard reset, so confirm that it was just a random issue that shouldn't happen again
+    cd Code/
+    git clone https://github.com/pop-os/shell.git pop-shell
+    cd pop-shell/
+    make local-install
+    gsettings --schemadir ~/.local/share/gnome-shell/extensions/pop-shell@system76.com/schemas set org.gnome.shell.extensions.pop-shell activate-launcher "['<Super>space']"
+    gext disable pop-shell@system76.com
+    cd ~
 
-# TODO: Something went wrong during the first test that required a hard reset, so confirm that it was just a random issue that shouldn't happen again
-cd Code/
-git clone https://github.com/pop-os/shell.git pop-shell
-cd pop-shell/
-make local-install
-gsettings --schemadir ~/.local/share/gnome-shell/extensions/pop-shell@system76.com/schemas set org.gnome.shell.extensions.pop-shell activate-launcher "['<Super>space']"
-gext disable pop-shell@system76.com
-cd ~
+    cd Code/
+    git clone https://github.com/DaRubyMiner360/soft-brightness.git
+    cd soft-brightness/
+    meson build
+    ninja -C build install
+    gext enable soft-brightness@fifi.org
+    cd ~/Code/
+    rm -rf soft-brightness/
+    cd ~
 
-cd Code/
-git clone https://github.com/DaRubyMiner360/soft-brightness.git
-cd soft-brightness/
-meson build
-ninja -C build install
-gext enable soft-brightness@fifi.org
-cd ~/Code/
-rm -rf soft-brightness/
-cd ~
+    cd Code/
+    git clone https://github.com/DaRubyMiner360/dash2dock-lite.git
+    cd dash2dock-lite/
+    make
+    gext enable dash2dock-lite@icedman.github.com
+    cd ~/Code/
+    rm -rf dash2dock-lite/
+    cd ~
 
-cd Code/
-git clone https://github.com/DaRubyMiner360/dash2dock-lite.git
-cd dash2dock-lite/
-make
-gext enable dash2dock-lite@icedman.github.com
-cd ~/Code/
-rm -rf dash2dock-lite/
-cd ~
+    cd Code/
+    git clone https://github.com/lofilobzik/gdm-auto-blur.git
+    cd gdm-auto-blur/
+    mkdir -p ~/.local/bin/
+    cp gdm-auto-blur.py ~/.local/bin/gdm-auto-blur
+    cd ~/.local/bin/
+    chmod +x gdm-auto-blur
+    cd ~/Code/
+    rm -rf gdm-auto-blur/
+    cd ~
 
-cd Code/
-git clone https://github.com/lofilobzik/gdm-auto-blur.git
-cd gdm-auto-blur/
-mkdir -p ~/.local/bin/
-cp gdm-auto-blur.py ~/.local/bin/gdm-auto-blur
-cd ~/.local/bin/
-chmod +x gdm-auto-blur
-cd ~/Code/
-rm -rf gdm-auto-blur/
-cd ~
+    git clone https://github.com/DaRubyMiner360/AutoGDMWallpaper.git ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/
 
-cd Code/
-git clone https://github.com/vinceliuice/Colloid-icon-theme
-cd Colloid-icon-theme/
-./install.sh
-cd ~/Code/
-rm -rf Colloid-icon-theme/
-cd ~
+    git clone https://github.com/DaRubyMiner360/GNOME-LockdownMode.git ~/.local/share/gnome-shell/extensions/lockdown-mode@darubyminer360.github.com/
+    cd ~/.local/share/gnome-shell/extensions/lockdown-mode@darubyminer360.github.com/
+    sudo ./compile_schemas.sh
+    gext enable lockdown-mode@darubyminer360.github.com
+    cd ~
 
-cd Code/
-git clone https://github.com/vinceliuice/Lavanda-gtk-theme
-cd Lavanda-gtk-theme/
-./install.sh
-cd ~/Code/
-rm -rf Lavanda-gtk-theme/
-cd ~
+    cd Code/
+    git clone https://github.com/vinceliuice/Colloid-icon-theme
+    cd Colloid-icon-theme/
+    ./install.sh
+    cd ~/Code/
+    rm -rf Colloid-icon-theme/
+    cd ~
 
-cd Code/
-git clone https://github.com/4e6anenk0/Rowaita-icon-theme
-cd Rowaita-icon-theme/
-cp -r Rowaita/ ~/.local/share/icons/
-cp -r Rowaita-Default-Dark/ ~/.local/share/icons/
-cp -r Rowaita-Default-Light/ ~/.local/share/icons/
-cp -r Rowaita-Adw-Dark/ ~/.local/share/icons/
-cp -r Rowaita-Adw-Light/ ~/.local/share/icons/
-cp -r Rowaita-Manjaro-Dark/ ~/.local/share/icons/
-cp -r Rowaita-Manjaro-Light/ ~/.local/share/icons/
-cd ~/Code/
-rm -rf Rowaita-icon-theme/
-cd ~
+    cd Code/
+    git clone https://github.com/vinceliuice/Lavanda-gtk-theme
+    cd Lavanda-gtk-theme/
+    ./install.sh
+    cd ~/Code/
+    rm -rf Lavanda-gtk-theme/
+    cd ~
 
-cd Code/
-git clone https://github.com/imarkoff/Marble-shell-theme.git
-cd Marble-shell-theme/
-python install.py -a
-cd ~/Code/
-rm -rf Marble-shell-theme/
-cd ~
+    cd Code/
+    git clone https://github.com/4e6anenk0/Rowaita-icon-theme
+    cd Rowaita-icon-theme/
+    cp -r Rowaita/ ~/.local/share/icons/
+    cp -r Rowaita-Default-Dark/ ~/.local/share/icons/
+    cp -r Rowaita-Default-Light/ ~/.local/share/icons/
+    cp -r Rowaita-Adw-Dark/ ~/.local/share/icons/
+    cp -r Rowaita-Adw-Light/ ~/.local/share/icons/
+    cp -r Rowaita-Manjaro-Dark/ ~/.local/share/icons/
+    cp -r Rowaita-Manjaro-Light/ ~/.local/share/icons/
+    cd ~/Code/
+    rm -rf Rowaita-icon-theme/
+    cd ~
 
-sudo cp -r ~/.themes/* /usr/share/themes/
-sudo cp -r ~/.local/share/icons/* /usr/share/icons/
+    cd Code/
+    git clone https://github.com/imarkoff/Marble-shell-theme.git
+    cd Marble-shell-theme/
+    python install.py -a
+    cd ~/Code/
+    rm -rf Marble-shell-theme/
+    cd ~
+
+    sudo cp -r ~/.themes/* /usr/share/themes/
+    sudo cp -r ~/.local/share/icons/* /usr/share/icons/
+fi
 
 cd Code/
 # TODO: Fork grub2-themes and make a custom theme based on Tela
@@ -418,27 +444,20 @@ echo ""
 pfetch
 EOT
 
-git clone https://github.com/DaRubyMiner360/AutoGDMWallpaper.git ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/
-
-git clone https://github.com/DaRubyMiner360/GNOME-LockdownMode.git ~/.local/share/gnome-shell/extensions/lockdown-mode@darubyminer360.github.com/
-cd ~/.local/share/gnome-shell/extensions/lockdown-mode@darubyminer360.github.com/
-sudo ./compile_schemas.sh
-gext enable lockdown-mode@darubyminer360.github.com
-cd ~
-
 mkdir ~/.fonts
 cd ~/.fonts
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Meslo.zip
 unzip Meslo.zip
 rm Meslo.zip
 fc-cache -vf
-gsettings set org.gnome.desktop.interface monospace-font-name "MesloLGLDZ Nerd Font Mono Regular 11"
 cd ~
 
-wget https://gist.githubusercontent.com/DaRubyMiner360/cc707b5ba7ed68e31f7fb8fc99def457/raw/full-backup
-dconf load / < full-backup
-bash ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/switch.sh
-rm full-backup
+if [[ "$desktop" = "gnome" ]]; then
+    wget https://gist.githubusercontent.com/DaRubyMiner360/cc707b5ba7ed68e31f7fb8fc99def457/raw/full-backup
+    dconf load / < full-backup
+    bash ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/switch.sh
+    rm full-backup
+fi
 
 echo "Done!"
 echo "Don't worry if the terminal font's spacing is acting up."
