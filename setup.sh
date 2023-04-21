@@ -88,7 +88,7 @@ paru -S --needed bluez bluez-utils gnome-bluetooth-3.0 nautilus-bluetooth
 sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
 
-paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose
+paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
 paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit
 paru -S --needed openssh sshuttle tmux openvpn networkmanager-openvpn resolvconf iio-sensor-proxy
 paru -S --needed extension-manager dconf-editor gdm-tools gnome-browser-connector libappindicator-gtk3 gtk-engine-murrine gnome-themes-standard
