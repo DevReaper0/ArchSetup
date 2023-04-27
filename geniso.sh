@@ -4,7 +4,15 @@ cd "$(dirname "$0")"
 mkdir images/
 
 mkdir bare/
-cp setup.sh bare/
+cat <<EOT > bare/ArchSetup.sh
+sudo pacman -S --needed git
+cd ~
+git clone https://github.com/DaRubyMiner360/ArchSetup.git
+cd ArchSetup/
+./setup.sh "\$@"
+cd ~
+rm -rf ArchSetup/
+EOT
 mkisofs -U -V "ArchSetup" -o images/bare.iso bare/
 rm -rf bare/
 

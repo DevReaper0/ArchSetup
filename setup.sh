@@ -99,7 +99,7 @@ sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
 
 if [[ "$desktop" = "kde" ]]; then
-    paru -S --needed latte-dock
+    paru -S --needed latte-dock packagekit-qt5
 fi
 
 paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
