@@ -98,6 +98,10 @@ fi
 sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
 
+if [[ "$desktop" = "kde" ]]; then
+    paru -S --needed latte-dock
+fi
+
 paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
 paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit
 paru -S --needed openssh sshuttle tmux openvpn resolvconf iio-sensor-proxy
@@ -452,11 +456,14 @@ rm Meslo.zip
 fc-cache -vf
 cd ~
 
-if [[ "$desktop" = "gnome" ]]; then
-    wget https://gist.githubusercontent.com/DaRubyMiner360/cc707b5ba7ed68e31f7fb8fc99def457/raw/full-backup
-    dconf load / < full-backup
-    bash ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/switch.sh
-    rm full-backup
+wget https://gist.githubusercontent.com/DaRubyMiner360/cc707b5ba7ed68e31f7fb8fc99def457/raw/full-backup
+dconf load / < full-backup
+bash ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/switch.sh
+rm full-backup
+
+if [[ "$desktop" = "kde" ]]; then
+    sudo cp -r kde/* /
+    sudo mv /home/\$USER /home/$USER
 fi
 
 echo "Done!"
