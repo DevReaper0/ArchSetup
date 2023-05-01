@@ -105,7 +105,7 @@ if [[ "$desktop" = "kde" ]]; then
     git config --global core.askpass /usr/bin/ksshaskpass
 fi
 
-paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
+paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd wl-clipboard
 paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit
 paru -S --needed openssh sshuttle tmux openvpn resolvconf iio-sensor-proxy
 if [[ "$desktop" = "gnome" ]]; then
@@ -442,8 +442,13 @@ alias xppentablet="pentablet"
 EOT
 fi
 cat <<EOT >> ~/rubyarch.bashrc
-alias ls='ls --color=auto -I . -I ..'
-alias grep='grep --color=auto'
+alias ls="ls --color=auto -I . -I .."
+alias grep="grep --color=auto"
+
+alias clipboard="wl-copy --trim-newline"
+alias clipboardn="wl-copy"
+alias clip="clipboard"
+alias clipn="clipboardn"
 
 alias parrotdance="curl parrot.live"
 alias rick="curl -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash"
