@@ -1,3 +1,5 @@
+cd "$(dirname "$0")"
+
 if [[ "$XDG_CURRENT_DESKTOP" = "" ]]; then
     desktop=$(echo "$XDG_DATA_DIRS" | sed 's/.*\(kde\|gnome\).*/\1/')
 else
@@ -129,6 +131,8 @@ if [ "$lite" = false ]; then
 fi
 if [ "$install_vm" = true ]; then
     paru -S --needed qemu-full virt-manager dnsmasq
+    sudo systemctl enable libvirtd
+    sudo systemctl start libvirtd
 fi
 
 sudo sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
@@ -463,6 +467,8 @@ bash ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.githu
 rm full-backup
 
 if [[ "$desktop" = "kde" ]]; then
+    cd "$(dirname "$0")"
+
     sudo cp -r kde/* /
     sudo mv /home/\$USER /home/$USER
 fi
