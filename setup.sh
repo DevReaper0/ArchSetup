@@ -115,7 +115,7 @@ paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
 if [[ "$desktop" = "gnome" ]]; then
     paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
 fi
-paru -S --needed gparted obsidian jetbrains-toolbox brave-beta-bin firefox firefox-extension-arch-search
+paru -S --needed gparted obsidian jetbrains-toolbox brave-beta-bin firefox firefox-extension-arch-search evince
 if [ "$lite" = false ]; then
     paru -S --needed deskreen-bin davinci-resolve krita aseprite
     paru -S --needed gamemode lutris steam steamcmd prismlauncher
@@ -442,7 +442,7 @@ alias xppentablet="pentablet"
 EOT
 fi
 cat <<EOT >> ~/rubyarch.bashrc
-alias ls="ls --color=auto -I . -I .."
+alias ls="ls --color=auto -a"
 alias grep="grep --color=auto"
 
 alias clipboard="wl-copy --trim-newline"

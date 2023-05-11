@@ -11,5 +11,6 @@ sudo cp -rf ~/.local/share/plasma/ \$USER/.local/share/plasma/
 sudo cp -rf ~/.local/share/latte-layouts/ \$USER/.local/share/latte-layouts/
 mkdir -p \$USER/.config/
 sudo cp -rf ~/.config/latte/ \$USER/.config/latte/
+sudo cp -rf ~/.config/kwinrc \$USER/.config/kwinrc
 mkdir -p \$USER/.local/share/konsole
 sudo cp -rf ~/.local/share/konsole/ \$USER/.local/share/konsole/
