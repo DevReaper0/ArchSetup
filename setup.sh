@@ -1,11 +1,22 @@
 cd "$(dirname "$0")"
 
-if [[ "$XDG_CURRENT_DESKTOP" = "" ]]; then
-    desktop=$(echo "$XDG_DATA_DIRS" | sed 's/.*\(kde\|gnome\).*/\1/')
+if [[ -f "/usr/bin/gnome-session" ]]; then
+    gnome=true
 else
-    desktop=$XDG_CURRENT_DESKTOP
+    gnome=false
 fi
-desktop=${desktop,,}
+if [[ -f "/usr/bin/plasma_session" ]]; then
+    kde=true
+else
+    kde=false
+fi
+
+if [[ "$XDG_CURRENT_DESKTOP" = "" ]]; then
+    current_desktop=$(echo "$XDG_DATA_DIRS" | sed 's/.*\(gnome\|kde\).*/\1/')
+else
+    current_desktop=$XDG_CURRENT_DESKTOP
+fi
+current_desktop=${current_desktop,,}
 
 if [[ -z "$1" ]]; then
     if [[ -z "${lite}" ]]; then
@@ -94,28 +105,28 @@ cd ..
 rm -rf paru/
 
 paru -S --needed bluez bluez-utils
-if [[ "$desktop" = "gnome" ]]; then
+if [ "$gnome" = true ]; then
     paru -S --needed gnome-bluetooth-3.0 nautilus-bluetooth
 fi
 sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
 
-if [[ "$desktop" = "kde" ]]; then
+if [ "$kde" = true ]; then
     paru -S --needed latte-dock packagekit-qt5 kwalletmanager ksshaskpass kwallet-pam kdeconnect
     git config --global core.askpass /usr/bin/ksshaskpass
 fi
 
-paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd wl-clipboard
-paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit
+paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
+paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit rsync wl-clipboard
 paru -S --needed openssh sshuttle tmux openvpn resolvconf iio-sensor-proxy
-if [[ "$desktop" = "gnome" ]]; then
+if [ "$gnome" = true ]; then
     paru -S --needed networkmanager-openvpn
 fi
 paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
-if [[ "$desktop" = "gnome" ]]; then
+if [ "$gnome" = true ]; then
     paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
 fi
-paru -S --needed gparted obsidian jetbrains-toolbox brave-beta-bin firefox firefox-extension-arch-search evince
+paru -S --needed gparted obsidian jetbrains-toolbox brave-beta-bin firefox firefox-extension-arch-search evince element-desktop
 if [ "$lite" = false ]; then
     paru -S --needed deskreen-bin davinci-resolve krita aseprite
     paru -S --needed gamemode lutris steam steamcmd prismlauncher
@@ -221,7 +232,7 @@ xhost +si:localuser:$USER
 xhost -
 
 pip install Pillow
-if [[ "$desktop" = "gnome" ]]; then
+if [ "$gnome" = true ]; then
     pip install gnome-extensions-cli
 fi
 
@@ -241,7 +252,7 @@ fi
 git clone https://github.com/DaRubyMiner360/nvim.git ~/.config/nvim
 nvim +PlugInstall +q2
 
-if [[ "$desktop" = "gnome" ]]; then
+if [ "$gnome" = true ]; then
     gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
     gext enable user-theme@gnome-shell-extensions.gcampax.github.com
     gext enable drive-menu@gnome-shell-extensions.gcampax.github.com
@@ -445,6 +456,9 @@ cat <<EOT >> ~/rubyarch.bashrc
 alias ls="ls --color=auto -a"
 alias grep="grep --color=auto"
 
+alias cpa="rsync -ah --progress"
+alias cpap="rsync -ah --progress --partial --append"
+
 alias clipboard="wl-copy --trim-newline"
 alias clipboardn="wl-copy"
 alias clip="clipboard"
@@ -471,7 +485,7 @@ dconf load / < full-backup
 bash ~/.local/share/gnome-shell/extensions/autogdmwallpaper@darubyminer360.github.com/switch.sh
 rm full-backup
 
-if [[ "$desktop" = "kde" ]]; then
+if [ "$kde" = true ]; then
     cd "$(dirname "$0")"
 
     sudo cp -r kde/* /
