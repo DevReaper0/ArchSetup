@@ -104,6 +104,8 @@ paru -Syu
 cd ..
 rm -rf paru/
 
+paru -S --needed pacman-contrib
+
 paru -S --needed bluez bluez-utils
 if [ "$gnome" = true ]; then
     paru -S --needed gnome-bluetooth-3.0 nautilus-bluetooth
