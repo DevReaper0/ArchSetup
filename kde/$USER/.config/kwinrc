@@ -5,11 +5,12 @@ update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-
 Id_1=a88d712d-e657-4327-b97a-43acf7be1dda
 Id_2=6325ab52-8963-4225-8af6-dc1236fc915b
 Id_3=1d501ffa-44ab-40e2-988a-a45042998141
-Id_4=7c1ce3ae-1e98-4138-b8e0-8b4cea61f81b
+Id_4=465068ff-7e9c-44e4-9229-b60dbf345544
+Id_5=04418dee-fe1a-4b76-9e44-9a4b710779ce
 Name_1=School
-Name_2=Code
-Name_3=Misc
-Number=4
+Name_2=Code 1
+Name_3=Code 2
+Number=5
 Rows=1
 
 [Effect-blur]
@@ -49,9 +50,8 @@ osdTimeout=500
 
 [Script-lockdown-mode]
 interval=2.5
-onlyCurrentDesktop=true
 onlyCurrrentActivity=true
-whitelist=firefox\nbrave-browser\nbrave-browser-beta\nsystemsettings\norg.kde.ark\norg.kde.dolphin
+whitelist=firefox\nbrave-browser\nbrave-browser-beta\norg.kde.konsole\nsystemsettings\norg.kde.ark\norg.kde.dolphin\nevince\nobsidian
 
 [Tiling]
 padding=4

@@ -14,6 +14,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kirigami 2.20 as Kirigami
+import org.kde.kwindowsystem 1.0
 
 import org.kde.plasma.private.colorpicker 2.0 as ColorPicker
 import "logic.js" as Logic
@@ -21,10 +22,10 @@ import "logic.js" as Logic
 Item {
     id: root
 
-    readonly property bool isVertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
+    readonly property bool isVertical: Plasmoid.formFactor === PlasmaCore.Types.Vertical
 
     readonly property color recentColor: historyModel.count > 0 ? historyModel.get(0).color : "#00000000" // transparent as fallback
-    readonly property string defaultFormat: plasmoid.configuration.defaultFormat
+    readonly property string defaultFormat: Plasmoid.configuration.defaultFormat
     readonly property int maxColorCount: 9
 
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
@@ -32,7 +33,7 @@ Item {
     function addColorToHistory(color) {
         // this .toString() is needed otherwise Qt completely screws it up
         // replacing *all* items in the list by the new items and other nonsense
-        historyModel.insert(0, {"color": color.toString()});
+        historyModel.insert(0, { color: color.toString() });
         // limit to 9 entries
         if (historyModel.count > maxColorCount) {
             historyModel.remove(maxColorCount);
@@ -45,13 +46,13 @@ Item {
             addColorToHistory(color)
         }
 
-        if (plasmoid.configuration.autoClipboard) {
+        if (Plasmoid.configuration.autoClipboard) {
             picker.copyToClipboard(Logic.formatColor(color, root.defaultFormat))
         }
     }
 
     function pickColor() {
-        plasmoid.expanded = false
+        Plasmoid.expanded = false
         picker.pick()
     }
 
@@ -60,9 +61,13 @@ Item {
         onCurrentColorChanged: colorPicked(currentColor)
     }
 
+    KWindowSystem {
+        id: kwindowsystem
+    }
+
     QtDialogs.ColorDialog {
         id: colorDialog
-        title: plasmoid.title
+        title: Plasmoid.title
         color: recentColor
         onColorChanged: colorPicked(color)
     }
@@ -87,8 +92,8 @@ Item {
     }
 
     Plasmoid.onActivated: {
-        if (plasmoid.configuration.pickOnActivate) {
-            delayedPickTimer.start()
+        if (Plasmoid.configuration.pickOnActivate) {
+            delayedPickTimer.start();
         }
     }
 
@@ -98,7 +103,7 @@ Item {
     }
 
     function action_colordialog() {
-        colorDialog.open()
+        colorDialog.open();
     }
 
     function action_expand() {
@@ -106,10 +111,10 @@ Item {
     }
 
     Component.onCompleted: {
-        plasmoid.setAction("colordialog", i18nc("@action", "Open Color Dialog"), "color-management")
-        plasmoid.setAction("clear", i18nc("@action", "Clear History"), "edit-clear-history")
-        plasmoid.setAction("expand", i18nc("@action", "View History"), "color-management")
-        Plasmoid.configuration.history.forEach(item => historyModel.append({"color": item}));
+        Plasmoid.setAction("colordialog", i18nc("@action", "Open Color Dialog"), "color-management");
+        Plasmoid.setAction("clear", i18nc("@action", "Clear History"), "edit-clear-history");
+        Plasmoid.setAction("expand", i18nc("@action", "View History"), "color-management");
+        Plasmoid.configuration.history.forEach(item => historyModel.append({ color: item }));
         Logic.copyToClipboardText = i18ndc("plasma_applet_org.kde.plasma.colorpicker", "@title:menu", "Copy to Clipboard"); // i18n is not supported in js library
     }
 
@@ -150,6 +155,7 @@ Item {
                 text: i18nc("@info:usagetip", "No colors")
 
                 helpfulAction: QQC2.Action {
+                    enabled: kwindowsystem.compositingActive
                     icon.name: "color-picker"
                     text: i18nc("@action:button", "Pick Color")
                     onTriggered: root.pickColor()
@@ -167,21 +173,18 @@ Item {
         }
 
         Connections {
-            target: plasmoid
+            target: Plasmoid.self
             function onExpandedChanged() {
-                if (plasmoid.expanded) {
+                if (Plasmoid.expanded) {
                     fullRoot.forceActiveFocus()
                 }
             }
         }
 
-        Keys.onPressed: {
-            if (event.key == Qt.Key_Return || event.key == Qt.Key_Menu) {
-                if (fullRoot.currentItem) {
-                    fullRoot.currentItem.clicked(null);
-                }
-            } else if (event.key == Qt.Key_Escape) {
-                plasmoid.expanded = false;
+        Keys.onPressed: event => {
+            if (event.key === Qt.Key_Escape) {
+                Plasmoid.expanded = false;
+                event.accepted = true;
             }
         }
 
@@ -217,47 +220,60 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             hoverEnabled: true
 
-            Keys.onDeletePressed: remove()
-            Keys.onPressed: {
+            Keys.onDeletePressed: event => remove()
+            Keys.onPressed: event => {
                 switch (event.key) {
                 case Qt.Key_Space:
                 case Qt.Key_Enter:
                 case Qt.Key_Return:
                 case Qt.Key_Select:
-                    delegateMouse.clicked(null);
+                    copy();
+                    break;
+                case Qt.Key_Menu:
+                    openMenu();
                     break;
                 }
             }
+
             Accessible.name: colorLabel.text
             Accessible.role: Accessible.ButtonMenu
 
             onContainsMouseChanged: {
                 if (containsMouse) {
-                    fullRoot.currentIndex = index
-                } else {
-                    fullRoot.currentIndex = -1
+                    fullRoot.currentIndex = index;
+                } else if (fullRoot.currentIndex === index) {
+                    fullRoot.currentIndex = -1;
                 }
             }
 
-            onPressed: {
+            onPressed: mouse => {
                 // grab pixmap only once
                 if (Drag.imageSource.toString() === "") { // cannot just do !Drag.imageSource on QUrl
                     dragImageDummy.color = currentColor;
-                    dragImageDummy.grabToImage(function (result) {
+                    dragImageDummy.grabToImage(result => {
                         Drag.imageSource = result.url;
                     });
                 }
             }
 
-            onClicked: {
+            onClicked: mouse => {
                 if (mouse.button === Qt.LeftButton) {
-                    picker.copyToClipboard(Logic.formatColor(delegateMouse.currentColor, root.defaultFormat))
-                    colorLabel.visible = false;
-                    copyIndicatorLabel.visible = true;
-                    colorLabelRestoreTimer.start()
-                } else {
-                    Logic.createContextMenu(delegateMouse, delegateMouse.currentColor, picker, colorLabel, copyIndicatorLabel, colorLabelRestoreTimer).open(0, rect.height);
+                    copy();
+                } else if (mouse.button === Qt.RightButton) {
+                    openMenu();
                 }
+            }
+
+            function copy() {
+                picker.copyToClipboard(Logic.formatColor(currentColor, root.defaultFormat))
+                colorLabel.visible = false;
+                copyIndicatorLabel.visible = true;
+                colorLabelRestoreTimer.start()
+            }
+
+            function openMenu() {
+                const menu = Logic.createContextMenu(this, currentColor, picker, colorLabel, copyIndicatorLabel, colorLabelRestoreTimer);
+                menu.openRelative();
             }
 
             function remove() {

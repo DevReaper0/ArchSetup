@@ -2,7 +2,7 @@
     SPDX-FileCopyrightText: 2013 Marco Martin <mart@kde.org>
     SPDX-FileCopyrightText: 2020 Nicolas Fella <nicolas.fella@gmx.de>
     SPDX-FileCopyrightText: 2020 Carl Schwan <carlschwan@kde.org>
-    SPDX-FileCopyrightText: 2022 ivan tkachenko <me@ratijas.tk>
+    SPDX-FileCopyrightText: 2022-2023 ivan tkachenko <me@ratijas.tk>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
@@ -131,12 +131,9 @@ Rectangle {
             bottom: parent.bottom
         }
         width: Kirigami.Units.gridUnit * 7
+        contentWidth: availableWidth
         Kirigami.Theme.colorSet: Kirigami.Theme.View
         Kirigami.Theme.inherit: false
-        leftPadding: 0
-        rightPadding: 0
-        topPadding: 0
-        bottomPadding: 0
         activeFocusOnTab: true
         focus: true
         Accessible.role: Accessible.MenuBar
@@ -193,7 +190,7 @@ Rectangle {
             id: categories
 
             spacing: 0
-            width: categoriesScroll.width
+            width: categoriesScroll.contentWidth
             focus: true
 
             function openCategory(item) {
@@ -264,9 +261,10 @@ Rectangle {
         z: 1
     }
     Kirigami.Separator {
+        id: verticalSeparator
         anchors {
-            right: categoriesScroll.right
             top: parent.top
+            left: categoriesScroll.right
             bottom: parent.bottom
         }
         z: 1
@@ -275,8 +273,8 @@ Rectangle {
     Kirigami.ApplicationItem {
         id: app
         anchors {
-            left: categoriesScroll.right
             top: parent.top
+            left: verticalSeparator.right
             right: parent.right
             bottom: parent.bottom
         }

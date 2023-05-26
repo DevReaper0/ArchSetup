@@ -76,6 +76,7 @@
         "Name[ca@valencia]": "Oxygen",
         "Name[ca]": "Oxygen",
         "Name[cs]": "Oxygen",
+        "Name[de]": "Oxygen",
         "Name[en_GB]": "Oxygen",
         "Name[es]": "Oxígeno",
         "Name[eu]": "Oxigenoa",
@@ -99,7 +100,7 @@
         "Name[vi]": "Oxygen",
         "Name[x-test]": "xxOxygenxx",
         "Name[zh_CN]": "Oxygen 轻氧",
-        "Version": "5.105.0",
+        "Version": "5.106.0",
         "Website": "https://plasma.kde.org"
     },
     "X-Plasma-API": "5.0"
