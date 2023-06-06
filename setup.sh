@@ -143,7 +143,7 @@ paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
 if [ "$gnome" = true ]; then
     paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
 fi
-paru -S --needed gpartedobsidian newsflash brave-beta-bin firefox firefox-extension-arch-search evince element-desktop
+paru -S --needed gparted obsidian newsflash brave-beta-bin firefox firefox-extension-arch-search evince element-desktop
 paru -S --needed libreoffice-fresh libreoffice-extension-texmaths libreoffice-extension-writer2latex libreoffice-extension-languagetool hunspell hunspell-en_us libmythes mythes-en
 if [ "$lite" = false ]; then
     paru -S --needed deskreen-bin davinci-resolve krita aseprite
