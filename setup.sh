@@ -138,8 +138,7 @@ if [[ $ssh_port -ne -1 ]]; then
     paru -S --needed openssh sshuttle
 fi
 paru -S --needed tmux openvpn resolvconf iio-sensor-proxy
-if [ "$gnome" = true ]; then
-    paru -S --needed networkmanager-openvpn
+paru -S --needed networkmanager-openvpn
 paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
 if [ "$gnome" = true ]; then
     paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
