@@ -134,7 +134,10 @@ rustup default stable
 
 paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
 paru -S --needed neovim neofetch pfetch-rs cmatrix starship ffmpeg github-cli cdrkit rsync wl-clipboard
-paru -S --needed openssh sshuttle tmux openvpn resolvconf iio-sensor-proxy
+if [[ $ssh_port -ne -1 ]]; then
+    paru -S --needed openssh sshuttle
+fi
+paru -S --needed tmux openvpn resolvconf iio-sensor-proxy
 if [ "$gnome" = true ]; then
     paru -S --needed networkmanager-openvpn
 paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
@@ -162,9 +165,11 @@ if [ "$install_vm" = true ]; then
     sudo systemctl start libvirtd
 fi
 
-sudo sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
-sudo systemctl enable sshd.service
-sudo systemctl start sshd.service
+if [[ $ssh_port -ne -1 ]]; then
+    sudo sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
+    sudo systemctl enable sshd.service
+    sudo systemctl start sshd.service
+fi
 
 paru -S --needed discord
 mkdir -p ~/.config/discord
