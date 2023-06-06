@@ -1,3 +1,14 @@
+if [ "$(id -u)" = 0 ]; then
+    echo "##################################################################"
+    echo "This script MUST NOT be run as root user since it makes changes"
+    echo "to the \$HOME directory of the \$USER executing this script."
+    echo "The \$HOME directory of the root user is, of course, '/root'."
+    echo "We don't want to mess around in there. So run this script as a"
+    echo "normal user. You will be asked for a sudo password when necessary."
+    echo "##################################################################"
+    exit 1
+fi
+
 cd "$(dirname "$0")"
 
 if [[ -f "/usr/bin/gnome-session" ]]; then
@@ -97,7 +108,7 @@ sudo sed -i "s/#Color/Color/" /etc/pacman.conf
 sudo sed -i "s/#ParallelDownloads = 5/ParallelDownloads = $parallel_downloads/" /etc/pacman.conf
 
 sudo pacman -S --needed git curl base-devel
-git clone https://aur.archlinux.org/paru.git
+git clone https://aur.archlinux.org/paru-bin.git
 cd paru/
 makepkg -si
 paru -Syu
@@ -118,12 +129,14 @@ if [ "$kde" = true ]; then
     git config --global core.askpass /usr/bin/ksshaskpass
 fi
 
+paru -S --needed rustup
+rustup default stable
+
 paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
-paru -S --needed neovim neofetch pfetch cmatrix starship ffmpeg github-cli cdrkit rsync wl-clipboard
+paru -S --needed neovim neofetch pfetch-rs cmatrix starship ffmpeg github-cli cdrkit rsync wl-clipboard
 paru -S --needed openssh sshuttle tmux openvpn resolvconf iio-sensor-proxy
 if [ "$gnome" = true ]; then
     paru -S --needed networkmanager-openvpn
-fi
 paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
 if [ "$gnome" = true ]; then
     paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
@@ -471,7 +484,7 @@ alias parrotdance="curl parrot.live"
 alias rick="curl -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash"
 
 echo ""
-#neofetch
+# neofetch
 pfetch
 EOT
 
