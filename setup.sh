@@ -109,11 +109,11 @@ sudo sed -i "s/#ParallelDownloads = 5/ParallelDownloads = $parallel_downloads/" 
 
 sudo pacman -S --needed git curl base-devel
 git clone https://aur.archlinux.org/paru-bin.git
-cd paru/
+cd paru-bin/
 makepkg -si
 paru -Syu
 cd ..
-rm -rf paru/
+rm -rf paru-bin/
 
 paru -S --needed pacman-contrib
 
