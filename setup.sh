@@ -206,6 +206,7 @@ if [ "$lite" = false ]; then
     chmod +x installer-systemd.sh; sudo ./installer-systemd.sh
     sudo systemctl enable g910-gkeys.service
     sudo systemctl start g910-gkeys.service
+    cd ~
 fi
 if [ "$install_vm" = true ]; then
     paru -S --needed qemu-full virt-manager dnsmasq
