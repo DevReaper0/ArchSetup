@@ -303,7 +303,8 @@ xhost -
 
 pip install Pillow
 if [ "$gnome" = true ]; then
-    pip install gnome-extensions-cli
+    sudo pip install gnome-extensions-cli
+    pip install --user gnome-extensions-cli
 fi
 
 if [ "$install_pentablet" = true ]; then
