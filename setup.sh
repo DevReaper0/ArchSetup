@@ -446,7 +446,7 @@ if [ "$gnome" = true ]; then
         echo ""
         echo ""
         tput bold
-        echo "NOTICE: For some currently unknown reason, Pop Shell might break your GNOME session on first install. If it does, press CTRL+C to restart GNOME when you get to a black screen."
+        echo "NOTICE: For some currently unknown reason, Pop Shell might break your GNOME session on first install. If it does, press CTRL+C to restart GNOME when you get to a black screen, and then rerun the script to continue from where you left off."
         tput sgr0
         read -s -n 1 -p "Press any key to continue..." && echo ""
         paru -S --needed gnome-shell-extension-pop-shell
