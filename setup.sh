@@ -137,7 +137,7 @@ mkdir Code/
 sudo sed -i "s/#Color/Color/" /etc/pacman.conf
 sudo sed -i "s/#ParallelDownloads = 5/ParallelDownloads = $parallel_downloads/" /etc/pacman.conf
 
-sudo pacman -S --needed git curl base-devel
+sudo pacman -S --needed git curl wget base-devel
 git clone https://aur.archlinux.org/paru-bin.git
 cd paru-bin/
 makepkg -si
