@@ -91,13 +91,43 @@ else
 fi
 
 if [[ -z "$7" ]]; then
+    if [[ -z "${install_davinci_resolve}" ]]; then
+        install_davinci_resolve=false
+    else
+        install_davinci_resolve="${install_davinci_resolve}"
+    fi
+else
+    install_davinci_resolve="$7"
+fi
+
+if [[ -z "$8" ]]; then
+    if [[ -z "${install_prismlauncher}" ]]; then
+        install_prismlauncher=false
+    else
+        install_prismlauncher="${install_prismlauncher}"
+    fi
+else
+    install_prismlauncher="$8"
+fi
+
+if [[ -z "$9" ]]; then
+    if [[ -z "${install_aseprite}" ]]; then
+        install_aseprite=true
+    else
+        install_aseprite="${install_aseprite}"
+    fi
+else
+    install_aseprite="$9"
+fi
+
+if [[ -z "${10}" ]]; then
     if [[ -z "${install_pentablet}" ]]; then
         install_pentablet=true
     else
         install_pentablet="${install_pentablet}"
     fi
 else
-    install_pentablet="$7"
+    install_pentablet="${10}"
 fi
 
 
@@ -145,9 +175,18 @@ if [ "$gnome" = true ]; then
 fi
 paru -S --needed gparted obsidian newsflash brave-beta-bin firefox firefox-extension-arch-search evince element-desktop
 paru -S --needed libreoffice-fresh libreoffice-extension-texmaths libreoffice-extension-writer2latex libreoffice-extension-languagetool hunspell hunspell-en_us libmythes mythes-en
+if [ "$install_davinci_resolve" = true ]; then
+    paru -S --needed davinci-resolve
+fi
+if [ "$install_prismlauncher" = true ]; then
+    paru -S --needed prismlauncher
+fi
+if [ "$install_aseprite" = true ]; then
+    paru -S --needed aseprite
+fi
 if [ "$lite" = false ]; then
-    paru -S --needed deskreen-bin davinci-resolve krita aseprite
-    paru -S --needed gamemode lutris steam steamcmd prismlauncher
+    paru -S --needed deskreen-bin krita
+    paru -S --needed gamemode lutris steam steamcmd
 
     #paru -S --needed keyleds
     modprobe uinput
