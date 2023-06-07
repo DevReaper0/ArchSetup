@@ -130,6 +130,16 @@ else
     install_pentablet="${10}"
 fi
 
+if [[ -z "${11}" ]]; then
+    if [[ -z "${install_pop_shell}" ]]; then
+        install_pop_shell=true
+    else
+        install_pop_shell="${install_pop_shell}"
+    fi
+else
+    install_pop_shell="${11}"
+fi
+
 
 cd ~
 mkdir Code/
@@ -394,15 +404,6 @@ if [ "$gnome" = true ]; then
     gext install vertical-workspaces@G-dH.github.com
     gext disable vertical-workspaces@G-dH.github.com
 
-    # TODO: Something went wrong during the first test that required a hard reset, so confirm that it was just a random issue that shouldn't happen again
-    cd Code/
-    git clone https://github.com/pop-os/shell.git pop-shell
-    cd pop-shell/
-    make local-install
-    gsettings --schemadir ~/.local/share/gnome-shell/extensions/pop-shell@system76.com/schemas set org.gnome.shell.extensions.pop-shell activate-launcher "['<Super>space']"
-    gext disable pop-shell@system76.com
-    cd ~
-
     cd Code/
     git clone https://github.com/DaRubyMiner360/soft-brightness.git
     cd soft-brightness/
@@ -440,6 +441,18 @@ if [ "$gnome" = true ]; then
     sudo ./compile_schemas.sh
     gext enable lockdown-mode@darubyminer360.github.com
     cd ~
+    
+    if [ "$install_pop_shell" = true ]; then
+        echo ""
+        echo ""
+        tput bold
+        echo "NOTICE: For some currently unknown reason, Pop Shell might break your GNOME session on first install. If it does, press CTRL+C to restart GNOME when you get to a black screen."
+        tput sgr0
+        read -s -n 1 -p "Press any key to continue..." && echo ""
+        paru -S --needed gnome-shell-extension-pop-shell
+        gsettings --schemadir ~/.local/share/gnome-shell/extensions/pop-shell@system76.com/schemas set org.gnome.shell.extensions.pop-shell activate-launcher "['<Super>space']"
+        gext disable pop-shell@system76.com
+    fi
 
     cd Code/
     git clone https://github.com/vinceliuice/Colloid-icon-theme
