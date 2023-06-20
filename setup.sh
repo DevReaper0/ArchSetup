@@ -29,14 +29,16 @@ else
 fi
 current_desktop=${current_desktop,,}
 
+# How much "stuff" should be installed
+# Possible values are 'full', 'lite', and 'base'
 if [[ -z "$1" ]]; then
-    if [[ -z "${lite}" ]]; then
-        lite=true
+    if [[ -z "${complexity}" ]]; then
+        complexity="lite"
     else
-        lite="${lite}"
+        complexity="${complexity}"
     fi
 else
-    lite="$1"
+    complexity="$1"
 fi
 
 # Power Management
@@ -132,7 +134,7 @@ fi
 
 if [[ -z "${11}" ]]; then
     if [[ -z "${install_pop_shell}" ]]; then
-        install_pop_shell=true
+        install_pop_shell=false
     else
         install_pop_shell="${install_pop_shell}"
     fi
@@ -147,7 +149,7 @@ mkdir Code/
 sudo sed -i "s/#Color/Color/" /etc/pacman.conf
 sudo sed -i "s/#ParallelDownloads = 5/ParallelDownloads = $parallel_downloads/" /etc/pacman.conf
 
-sudo pacman -S --needed git curl wget base-devel
+sudo pacman -S --needed git curl base-devel
 git clone https://aur.archlinux.org/paru-bin.git
 cd paru-bin/
 makepkg -si
@@ -155,7 +157,11 @@ paru -Syu
 cd ..
 rm -rf paru-bin/
 
-paru -S --needed pacman-contrib
+paru -S --needed pacman-contrib wget
+
+paru -S i2c-tools lm_sensors
+sudo sh -c "echo i2c-dev > /etc/modules-load.d/i2c-dev.conf"
+sudo modprobe i2c-dev
 
 paru -S --needed bluez bluez-utils
 if [ "$gnome" = true ]; then
@@ -165,26 +171,39 @@ sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
 
 if [ "$kde" = true ]; then
-    paru -S --needed latte-dock packagekit-qt5 kwalletmanager ksshaskpass kwallet-pam kdeconnect
-    git config --global core.askpass /usr/bin/ksshaskpass
+    if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+        paru -S --needed packagekit-qt5 kwalletmanager ksshaskpass kwallet-pam kdeconnect
+        git config --global core.askpass /usr/bin/ksshaskpass
+    fi
+    paru -S --needed latte-dock
 fi
 
 paru -S --needed rustup
 rustup default stable
 
-paru -S --needed make jdk-temurin python python-pip tk dart kotlin android-tools typescript npm yarn docker docker-compose usbfluxd
+paru -S --needed make python python-pip python-pipx tk npm yarn
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    paru -S --needed jdk-temurin tk dart kotlin android-tools typescript docker docker-compose usbfluxd
+    sudo gpasswd -a $USER flutterusers
+fi
 paru -S --needed neovim neofetch pfetch-rs cmatrix starship ffmpeg github-cli cdrkit rsync wl-clipboard
 if [[ $ssh_port -ne -1 ]]; then
     paru -S --needed openssh sshuttle
 fi
-paru -S --needed tmux openvpn resolvconf iio-sensor-proxy
-paru -S --needed networkmanager-openvpn
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    paru -S --needed tmux openvpn networkmanager-openvpn
+fi
+paru -S --needed resolvconf iio-sensor-proxy
 paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
+
 if [ "$gnome" = true ]; then
     paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
 fi
-paru -S --needed gparted obsidian newsflash brave-beta-bin firefox firefox-extension-arch-search evince element-desktop
-paru -S --needed libreoffice-fresh libreoffice-extension-texmaths libreoffice-extension-writer2latex libreoffice-extension-languagetool hunspell hunspell-en_us libmythes mythes-en
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    paru -S --needed gparted obsidian newsflash brave-beta-bin evince element-desktop
+    paru -S --needed libreoffice-fresh libreoffice-extension-texmaths libreoffice-extension-writer2latex libreoffice-extension-languagetool hunspell hunspell-en_us libmythes mythes-en
+fi
+paru -S --needed firefox firefox-extension-arch-search
 if [ "$install_davinci_resolve" = true ]; then
     paru -S --needed davinci-resolve
 fi
@@ -194,12 +213,12 @@ fi
 if [ "$install_aseprite" = true ]; then
     paru -S --needed aseprite
 fi
-if [ "$lite" = false ]; then
+if [[ $complexity = "full" ]]; then
     paru -S --needed deskreen-bin krita
     paru -S --needed gamemode lutris steam steamcmd
 
     #paru -S --needed keyleds
-    modprobe uinput
+    #modprobe uinput
     cd Code/
     git clone https://github.com/MR-R080T/g910-gkey-macro-support.git
     cd g910-gkey-macro-support/
@@ -207,6 +226,9 @@ if [ "$lite" = false ]; then
     sudo systemctl enable g910-gkeys.service
     sudo systemctl start g910-gkeys.service
     cd ~
+
+    paru -S --needed openrgb-git
+    paru -S --needed openrazer-meta razergenie
 fi
 if [ "$install_vm" = true ]; then
     paru -S --needed qemu-full virt-manager dnsmasq
@@ -220,37 +242,39 @@ if [[ $ssh_port -ne -1 ]]; then
     sudo systemctl start sshd.service
 fi
 
-paru -S --needed discord
-mkdir -p ~/.config/discord
-cat << EOT > ~/.config/discord/settings.json
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    paru -S --needed discord
+    mkdir -p ~/.config/discord
+    cat << EOT > ~/.config/discord/settings.json
 {
   "IS_MAXIMIZED": true,
   "IS_MINIMIZED": false,
   "SKIP_HOST_UPDATE": true
 }
 EOT
+fi
 
-paru -S --needed tilix
-mkdir -p ~/.config/tilix/schemes
-wget  -qO $HOME"/.config/tilix/schemes/afterglow.json" https://git.io/v7QVD
-wget  -qO $HOME"/.config/tilix/schemes/adventuretime.json" https://git.io/v7QVg
-wget  -qO $HOME"/.config/tilix/schemes/argonaut.json" https://git.io/v7QV5
-wget  -qO $HOME"/.config/tilix/schemes/arthur.json" https://git.io/v7QV1
-wget  -qO $HOME"/.config/tilix/schemes/atom.json" https://git.io/v7Q27
-wget  -qO $HOME"/.config/tilix/schemes/birds-of-paradise.json" https://git.io/v7Q2x
-wget  -qO $HOME"/.config/tilix/schemes/blazer.json" https://git.io/v7Q2N
-wget  -qO $HOME"/.config/tilix/schemes/broadcast.json" https://git.io/v7QaU
-wget  -qO $HOME"/.config/tilix/schemes/brogrammer.json" https://git.io/v7Qa3
-wget  -qO $HOME"/.config/tilix/schemes/chalk.json" https://git.io/v7Q2A
-wget  -qO $HOME"/.config/tilix/schemes/chalkboard.json" https://git.io/v7Q2h
-wget  -qO $HOME"/.config/tilix/schemes/ciapre.json" https://git.io/v7Qae
-wget  -qO $HOME"/.config/tilix/schemes/darkside.json" https://git.io/v7QVV
-wget  -qO $HOME"/.config/tilix/schemes/dimmed-monokai.json" https://git.io/v7QaJ
-wget  -qO $HOME"/.config/tilix/schemes/dracula.json" https://git.io/v7QaT
-wget  -qO $HOME"/.config/tilix/schemes/hardcore.json" https://git.io/v7QaY
-wget  -qO $HOME"/.config/tilix/schemes/oceanic-next.json" https://git.io/v7QaA
-
-sudo gpasswd -a $USER flutterusers
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    paru -S --needed tilix
+    mkdir -p ~/.config/tilix/schemes
+    wget  -qO $HOME"/.config/tilix/schemes/afterglow.json" https://git.io/v7QVD
+    wget  -qO $HOME"/.config/tilix/schemes/adventuretime.json" https://git.io/v7QVg
+    wget  -qO $HOME"/.config/tilix/schemes/argonaut.json" https://git.io/v7QV5
+    wget  -qO $HOME"/.config/tilix/schemes/arthur.json" https://git.io/v7QV1
+    wget  -qO $HOME"/.config/tilix/schemes/atom.json" https://git.io/v7Q27
+    wget  -qO $HOME"/.config/tilix/schemes/birds-of-paradise.json" https://git.io/v7Q2x
+    wget  -qO $HOME"/.config/tilix/schemes/blazer.json" https://git.io/v7Q2N
+    wget  -qO $HOME"/.config/tilix/schemes/broadcast.json" https://git.io/v7QaU
+    wget  -qO $HOME"/.config/tilix/schemes/brogrammer.json" https://git.io/v7Qa3
+    wget  -qO $HOME"/.config/tilix/schemes/chalk.json" https://git.io/v7Q2A
+    wget  -qO $HOME"/.config/tilix/schemes/chalkboard.json" https://git.io/v7Q2h
+    wget  -qO $HOME"/.config/tilix/schemes/ciapre.json" https://git.io/v7Qae
+    wget  -qO $HOME"/.config/tilix/schemes/darkside.json" https://git.io/v7QVV
+    wget  -qO $HOME"/.config/tilix/schemes/dimmed-monokai.json" https://git.io/v7QaJ
+    wget  -qO $HOME"/.config/tilix/schemes/dracula.json" https://git.io/v7QaT
+    wget  -qO $HOME"/.config/tilix/schemes/hardcore.json" https://git.io/v7QaY
+    wget  -qO $HOME"/.config/tilix/schemes/oceanic-next.json" https://git.io/v7QaA
+fi
 
 # none, power-profiles-daemon, tlp, auto-cpufreq, auto-cpufreq+tlp
 if [[ $power_management = "power-profiles-daemon" ]]; then
@@ -297,15 +321,13 @@ if [ "$install_thermald" = true ]; then
     sudo systemctl start thermald.service
 fi
 
-paru -S --needed distrobox
-xhost +si:localuser:$USER
-xhost -
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    paru -S --needed distrobox
+    xhost +si:localuser:$USER
+    xhost -
+fi
 
 pip install Pillow
-if [ "$gnome" = true ]; then
-    sudo pip install gnome-extensions-cli
-    pip install --user gnome-extensions-cli
-fi
 
 if [ "$install_pentablet" = true ]; then
     # Install drivers for my drawing tablet
@@ -324,21 +346,29 @@ git clone https://github.com/DaRubyMiner360/nvim.git ~/.config/nvim
 nvim +PlugInstall +q2
 
 if [ "$gnome" = true ]; then
+    pipx install gnome-extensions-cli
+
     gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
     gext enable user-theme@gnome-shell-extensions.gcampax.github.com
     gext enable drive-menu@gnome-shell-extensions.gcampax.github.com
     # Download AATWS - Advanced Alt-Tab Window Switcher
     gext install advanced-alt-tab@G-dH.github.com
     gext disable advanced-alt-tab@G-dH.github.com
+    # Download Alphabetical App Grid
+    gext install AlphabeticalAppGrid@stuarthayhurst
+    gext disable AlphabeticalAppGrid@stuarthayhurst
     # Download AppIndicator and KStatusNotifierItem Support
     gext install appindicatorsupport@rgcjonas.gmail.com
     gext enable appindicatorsupport@rgcjonas.gmail.com
     # Download Aylur's Widgets
     gext install widgets@aylur
-    gext enable widgets@aylur
+    gext disable widgets@aylur
     # Download Blur my Shell
     gext install blur-my-shell@aunetx
     gext enable blur-my-shell@aunetx
+    # Download Burn My Windows
+    gext install burn-my-windows@l3nn4rt.github.io
+    gext disable burn-my-windows@l3nn4rt.github.io
     # Download Click to close overview
     gext install click-to-close-overview@l3nn4rt.github.io
     gext enable click-to-close-overview@l3nn4rt.github.io
@@ -360,6 +390,9 @@ if [ "$gnome" = true ]; then
     # Download Fly-Pie
     gext install flypie@schneegans.github.com
     gext disable flypie@schneegans.github.com
+    # Download Forge
+    gext install forge@jmmaranan.com
+    gext disable forge@jmmaranan.com
     # Download Gesture Improvements
     gext install gestureImprovements@gestures
     gext enable gestureImprovements@gestures
@@ -369,12 +402,12 @@ if [ "$gnome" = true ]; then
     # Download GSConnect
     gext install gsconnect@andyholmes.github.io
     gext disable gsconnect@andyholmes.github.io
-    # Download Gtk4 Desktop Icons NG
-    gext install gtk4-ding@smedius.gitlab.com
-    gext disable gtk4-ding@smedius.gitlab.com
     # Download Just Perfection
     gext install just-perfection-desktop@just-perfection
     gext enable just-perfection-desktop@just-perfection
+    # Download Gtk4 Desktop Icons NG
+    gext install gtk4-ding@smedius.gitlab.com
+    gext disable gtk4-ding@smedius.gitlab.com
     # Download Lock Keys
     gext install lockkeys@vaina.lt
     gext enable lockkeys@vaina.lt
@@ -387,15 +420,24 @@ if [ "$gnome" = true ]; then
     # Download Night Theme Switcher
     gext install nightthemeswitcher@romainvigier.fr
     gext disable nightthemeswitcher@romainvigier.fr
+    # Download Order Gnome Shell extensions
+    gext install order-extensions@wa4557.github.com
+    gext enable order-extensions@wa4557.github.com
     # Download Quick Close in Overview
     gext install middleclickclose@paolo.tranquilli.gmail.com
     gext enable middleclickclose@paolo.tranquilli.gmail.com
+    # Download Rounded Window Corners
+    gext install rounded-window-corners@yilozt
+    gext enable rounded-window-corners@yilozt
     # Download Space Bar
     gext install space-bar@luchrioh
     gext enable space-bar@luchrioh
     # Download Status Area Horizontal Spacing
     gext install status-area-horizontal-spacing@mathematical.coffee.gmail.com
     gext enable status-area-horizontal-spacing@mathematical.coffee.gmail.com
+    # Download Transparent Window Moving
+    gext install transparent-window-moving@noobsai.github.com
+    gext enable transparent-window-moving@noobsai.github.com
     # Download Tray Icons: Reloaded
     gext install trayIconsReloaded@selfmade.pl
     gext disable trayIconsReloaded@selfmade.pl
@@ -448,7 +490,7 @@ if [ "$gnome" = true ]; then
         echo ""
         echo ""
         tput bold
-        echo "NOTICE: For some currently unknown reason, Pop Shell might break your GNOME session on first install. If it does, press CTRL+C to restart GNOME when you get to a black screen, and then rerun the script to continue from where you left off."
+        echo "NOTICE: For some currently unknown reason, Pop Shell might break your GNOME session on first install. If it does, press CTRL+C to restart GNOME when you get to a black screen, and then rerun the script to continue from where you left off. If you have already seen this message during this installation, you should be fine."
         tput sgr0
         read -s -n 1 -p "Press any key to continue..." && echo ""
         paru -S --needed gnome-shell-extension-pop-shell
@@ -499,7 +541,6 @@ if [ "$gnome" = true ]; then
 fi
 
 cd Code/
-# TODO: Fork grub2-themes and make a custom theme based on Tela
 git clone https://github.com/vinceliuice/grub2-themes.git
 cd grub2-themes/
 sudo ./install.sh -t tela -i color -s 1080p
@@ -538,9 +579,15 @@ alias clipboardn="wl-copy"
 alias clip="clipboard"
 alias clipn="clipboardn"
 
+EOT
+if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
+    cat <<EOT >> ~/rubyarch.bashrc
 alias parrotdance="curl parrot.live"
 alias rick="curl -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash"
 
+EOT
+fi
+cat <<EOT >> ~/rubyarch.bashrc
 echo ""
 # neofetch
 pfetch
