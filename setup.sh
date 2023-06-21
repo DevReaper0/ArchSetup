@@ -367,8 +367,8 @@ if [ "$gnome" = true ]; then
     gext install blur-my-shell@aunetx
     gext enable blur-my-shell@aunetx
     # Download Burn My Windows
-    gext install burn-my-windows@l3nn4rt.github.io
-    gext disable burn-my-windows@l3nn4rt.github.io
+    gext install burn-my-windows@schneegans.github.com
+    gext disable burn-my-windows@schneegans.github.com
     # Download Click to close overview
     gext install click-to-close-overview@l3nn4rt.github.io
     gext enable click-to-close-overview@l3nn4rt.github.io
