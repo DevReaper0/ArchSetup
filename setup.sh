@@ -159,7 +159,7 @@ rm -rf paru-bin/
 
 paru -S --needed pacman-contrib wget
 
-paru -S i2c-tools lm_sensors
+paru -S --needed i2c-tools lm_sensors
 sudo sh -c "echo i2c-dev > /etc/modules-load.d/i2c-dev.conf"
 sudo modprobe i2c-dev
 
@@ -182,6 +182,10 @@ paru -S --needed rustup
 rustup default stable
 
 paru -S --needed make python python-pip python-pipx tk npm yarn
+pipx ensurepath
+eval "$(register-python-argcomplete pipx)"
+. ~/.bashrc
+
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
     paru -S --needed jdk-temurin tk dart kotlin android-tools typescript docker docker-compose usbfluxd
     sudo gpasswd -a $USER flutterusers
@@ -346,7 +350,7 @@ git clone https://github.com/DaRubyMiner360/nvim.git ~/.config/nvim
 nvim +PlugInstall +q2
 
 if [ "$gnome" = true ]; then
-    pipx install gnome-extensions-cli
+    pipx install gnome-extensions-cli --system-site-packages
 
     gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
     gext enable user-theme@gnome-shell-extensions.gcampax.github.com
