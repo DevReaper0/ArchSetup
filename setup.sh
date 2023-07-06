@@ -93,53 +93,63 @@ else
 fi
 
 if [[ -z "$7" ]]; then
+    if [[ -z "${install_libreoffice}" ]]; then
+        install_libreoffice=false
+    else
+        install_libreoffice="${install_libreoffice}"
+    fi
+else
+    install_libreoffice="$7"
+fi
+
+if [[ -z "$8" ]]; then
     if [[ -z "${install_davinci_resolve}" ]]; then
         install_davinci_resolve=false
     else
         install_davinci_resolve="${install_davinci_resolve}"
     fi
 else
-    install_davinci_resolve="$7"
+    install_davinci_resolve="$8"
 fi
 
-if [[ -z "$8" ]]; then
+if [[ -z "$9" ]]; then
     if [[ -z "${install_prismlauncher}" ]]; then
         install_prismlauncher=false
     else
         install_prismlauncher="${install_prismlauncher}"
     fi
 else
-    install_prismlauncher="$8"
+    install_prismlauncher="$9"
 fi
 
-if [[ -z "$9" ]]; then
+if [[ -z "${10}" ]]; then
     if [[ -z "${install_aseprite}" ]]; then
         install_aseprite=true
     else
         install_aseprite="${install_aseprite}"
     fi
 else
-    install_aseprite="$9"
+    install_aseprite="${10}"
 fi
 
-if [[ -z "${10}" ]]; then
+if [[ -z "${11}" ]]; then
     if [[ -z "${install_pentablet}" ]]; then
         install_pentablet=true
     else
         install_pentablet="${install_pentablet}"
     fi
 else
-    install_pentablet="${10}"
+    install_pentablet="${11}"
 fi
 
-if [[ -z "${11}" ]]; then
+if [[ -z "${12}" ]]; then
     if [[ -z "${install_pop_shell}" ]]; then
         install_pop_shell=false
     else
         install_pop_shell="${install_pop_shell}"
     fi
 else
-    install_pop_shell="${11}"
+    install_pop_shell="${12}"
 fi
 
 
@@ -150,12 +160,14 @@ sudo sed -i "s/#Color/Color/" /etc/pacman.conf
 sudo sed -i "s/#ParallelDownloads = 5/ParallelDownloads = $parallel_downloads/" /etc/pacman.conf
 
 sudo pacman -S --needed git curl base-devel
-git clone https://aur.archlinux.org/paru-bin.git
-cd paru-bin/
-makepkg -si
-paru -Syu
-cd ..
-rm -rf paru-bin/
+if ! [ -x "$(command -v paru)" ]; then
+    git clone https://aur.archlinux.org/paru-bin.git
+    cd paru-bin/
+    makepkg -si
+    paru -Syu
+    cd ..
+    rm -rf paru-bin/
+fi
 
 paru -S --needed pacman-contrib wget
 
@@ -167,8 +179,7 @@ paru -S --needed bluez bluez-utils
 if [ "$gnome" = true ]; then
     paru -S --needed gnome-bluetooth-3.0 nautilus-bluetooth
 fi
-sudo systemctl enable bluetooth.service
-sudo systemctl start bluetooth.service
+sudo systemctl enable --now bluetooth.service
 
 if [ "$kde" = true ]; then
     if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
@@ -205,6 +216,8 @@ if [ "$gnome" = true ]; then
 fi
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
     paru -S --needed gparted obsidian newsflash brave-beta-bin evince element-desktop
+fi
+if [ "$install_libreoffice" = true ]; then
     paru -S --needed libreoffice-fresh libreoffice-extension-texmaths libreoffice-extension-writer2latex libreoffice-extension-languagetool hunspell hunspell-en_us libmythes mythes-en
 fi
 paru -S --needed firefox firefox-extension-arch-search
@@ -222,28 +235,34 @@ if [[ $complexity = "full" ]]; then
     paru -S --needed gamemode lutris steam steamcmd
 
     #paru -S --needed keyleds
-    #modprobe uinput
+
+    paru -S --needed libusb
+    cd Code/
+    git clone https://github.com/DaRubyMiner360/g810-led.git
+    cd g810-led/
+    make bin LIB=libusb
+    sudo make install
+
+    sudo modprobe uinput
     cd Code/
     git clone https://github.com/MR-R080T/g910-gkey-macro-support.git
     cd g910-gkey-macro-support/
     chmod +x installer-systemd.sh; sudo ./installer-systemd.sh
-    sudo systemctl enable g910-gkeys.service
-    sudo systemctl start g910-gkeys.service
+    sudo systemctl enable --now g910-gkeys.service
     cd ~
 
     paru -S --needed openrgb-git
     paru -S --needed openrazer-meta razergenie
+    sudo gpasswd -a $USER plugdev
 fi
 if [ "$install_vm" = true ]; then
     paru -S --needed qemu-full virt-manager dnsmasq
-    sudo systemctl enable libvirtd
-    sudo systemctl start libvirtd
+    sudo systemctl enable --now libvirtd
 fi
 
 if [[ $ssh_port -ne -1 ]]; then
     sudo sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
-    sudo systemctl enable sshd.service
-    sudo systemctl start sshd.service
+    sudo systemctl enable --now sshd.service
 fi
 
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
@@ -283,12 +302,10 @@ fi
 # none, power-profiles-daemon, tlp, auto-cpufreq, auto-cpufreq+tlp
 if [[ $power_management = "power-profiles-daemon" ]]; then
     paru -S --needed power-profiles-daemon
-    sudo systemctl enable power-profiles-daemon.service
-    sudo systemctl start power-profiles-daemon.service
+    sudo systemctl enable --now power-profiles-daemon.service
 elif [[ $power_management = "tlp" ]]; then
     paru -S --needed tlp tlpui
-    sudo systemctl enable tlp.service
-    sudo systemctl start tlp.service
+    sudo systemctl enable --now tlp.service
     sudo tlp start
 elif [[ $power_management = "auto-cpufreq" ]]; then
     cd Code/
@@ -299,8 +316,7 @@ elif [[ $power_management = "auto-cpufreq" ]]; then
     cd ~
 elif [[ $power_management = "auto-cpufreq+tlp" ]]; then
     paru -S --needed tlp tlpui
-    sudo systemctl enable tlp.service
-    sudo systemctl start tlp.service
+    sudo systemctl enable --now tlp.service
     sudo tlp start
 
     cd Code/
@@ -311,18 +327,15 @@ elif [[ $power_management = "auto-cpufreq+tlp" ]]; then
     cd ~
 elif [[ $power_management = "laptop-mode-tools" ]]; then
     paru -S --needed laptop-mode-tools
-    sudo systemctl enable laptop-mode.service
-    sudo systemctl start laptop-mode.service
+    sudo systemctl enable --now laptop-mode.service
 elif [[ $power_management = "powertop" ]]; then
     paru -S --needed powertop
     sudo sh -c "echo -e '[Unit]\nDescription=PowerTop\n\n[Service]\nType=oneshot\nRemainAfterExit=true\nExecStart=/usr/bin/powertop --auto-tune\n\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/powertop.service"
-    sudo systemctl enable powertop.service
-    sudo systemctl start powertop.service
+    sudo systemctl enable --now powertop.service
 fi
 if [ "$install_thermald" = true ]; then
     paru -S --needed thermald
-    sudo systemctl enable thermald.service
-    sudo systemctl start thermald.service
+    sudo systemctl enable --now thermald.service
 fi
 
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
@@ -358,9 +371,6 @@ if [ "$gnome" = true ]; then
     # Download AATWS - Advanced Alt-Tab Window Switcher
     gext install advanced-alt-tab@G-dH.github.com
     gext disable advanced-alt-tab@G-dH.github.com
-    # Download Alphabetical App Grid
-    gext install AlphabeticalAppGrid@stuarthayhurst
-    gext disable AlphabeticalAppGrid@stuarthayhurst
     # Download AppIndicator and KStatusNotifierItem Support
     gext install appindicatorsupport@rgcjonas.gmail.com
     gext enable appindicatorsupport@rgcjonas.gmail.com
@@ -388,6 +398,9 @@ if [ "$gnome" = true ]; then
     # Download Coverflow Alt-Tab
     gext install CoverflowAltTab@palatis.blogspot.com
     gext enable CoverflowAltTab@palatis.blogspot.com
+    # Download Custom Accent Colors
+    gext install custom-accent-colors@demiskp
+    gext disable custom-accent-colors@demiskp
     # Download Desktop Cube
     gext install desktop-cube@schneegans.github.com
     gext disable desktop-cube@schneegans.github.com
@@ -445,12 +458,15 @@ if [ "$gnome" = true ]; then
     # Download Tray Icons: Reloaded
     gext install trayIconsReloaded@selfmade.pl
     gext disable trayIconsReloaded@selfmade.pl
-    # Download Vitals
-    gext install Vitals@CoreCoding.com
-    gext disable Vitals@CoreCoding.com
+    # Download Unblank lock screen
+    gext install unblank@sun.wxg@gmail.com
+    gext enable unblank@sun.wxg@gmail.com
     # Download V-Shell (Vertical Workspaces)
     gext install vertical-workspaces@G-dH.github.com
     gext disable vertical-workspaces@G-dH.github.com
+    # Download Vitals
+    gext install Vitals@CoreCoding.com
+    gext disable Vitals@CoreCoding.com
 
     cd Code/
     git clone https://github.com/DaRubyMiner360/soft-brightness.git
