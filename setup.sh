@@ -256,7 +256,7 @@ if [[ $complexity = "full" ]]; then
     sudo gpasswd -a $USER plugdev
 fi
 if [ "$install_vm" = true ]; then
-    paru -S --needed qemu-full virt-manager dnsmasq
+    paru -S --needed qemu-full virt-manager virt-viewer dnsmasq
     sudo systemctl enable --now libvirtd
 fi
 
