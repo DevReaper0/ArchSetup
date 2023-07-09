@@ -613,13 +613,14 @@ echo ""
 pfetch
 EOT
 
-mkdir ~/.fonts
-cd ~/.fonts
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Meslo.zip
+mkdir ~/.fonts/
+cd ~/.fonts/
+wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
 unzip Meslo.zip
 rm Meslo.zip
 fc-cache -vf
 cd ~
+paru -S --needed noto-fonts-emoji ttf-joypixels ttf-twemoji otf-openmoji ttf-symbola ttf-twemoji-color-git
 
 wget https://gist.githubusercontent.com/DaRubyMiner360/cc707b5ba7ed68e31f7fb8fc99def457/raw/full-backup
 dconf load / < full-backup
