@@ -169,7 +169,8 @@ if ! [ -x "$(command -v paru)" ]; then
     rm -rf paru-bin/
 fi
 
-paru -S --needed pacman-contrib wget
+paru -S --needed pacman-contrib wget linux-headers v4l2loopback-dkms
+paru -S --needed man-db man-pages
 
 paru -S --needed i2c-tools lm_sensors
 sudo sh -c "echo i2c-dev > /etc/modules-load.d/i2c-dev.conf"
@@ -180,6 +181,8 @@ if [ "$gnome" = true ]; then
     paru -S --needed gnome-bluetooth-3.0 nautilus-bluetooth
 fi
 sudo systemctl enable --now bluetooth.service
+
+paru -S --needed easyeffects easyeffects-presets calf noisetorch noise-suppression-for-voice
 
 if [ "$kde" = true ]; then
     if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
@@ -198,7 +201,7 @@ eval "$(register-python-argcomplete pipx)"
 . ~/.bashrc
 
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
-    paru -S --needed jdk-temurin tk dart kotlin android-tools typescript docker docker-compose usbfluxd
+    paru -S --needed jdk-temurin jdk16-adoptopenjdk jdk8-openjdk tk dart kotlin android-tools typescript docker docker-compose usbfluxd dotnet-sdk-6.0
     sudo gpasswd -a $USER flutterusers
 fi
 paru -S --needed neovim neofetch pfetch-rs cmatrix starship ffmpeg github-cli cdrkit rsync wl-clipboard
@@ -206,13 +209,13 @@ if [[ $ssh_port -ne -1 ]]; then
     paru -S --needed openssh sshuttle
 fi
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
-    paru -S --needed tmux openvpn networkmanager-openvpn
+    paru -S --needed tmux openvpn networkmanager-openvpn network-manager-applet
 fi
 paru -S --needed resolvconf iio-sensor-proxy
 paru -S --needed dconf-editor libappindicator-gtk3 gtk-engine-murrine
 
 if [ "$gnome" = true ]; then
-    paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard
+    paru -S --needed extension-manager gdm-tools gnome-browser-connector gnome-themes-standard libgda gsound
 fi
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
     paru -S --needed gparted obsidian newsflash brave-beta-bin evince element-desktop
@@ -232,7 +235,8 @@ if [ "$install_aseprite" = true ]; then
 fi
 if [[ $complexity = "full" ]]; then
     paru -S --needed deskreen-bin krita
-    paru -S --needed gamemode lutris steam steamcmd
+    paru -S --needed gamemode lutris steam steamcmd proton-ge-custom-bin wine-ge-custom
+    paru -S --needed blender
 
     #paru -S --needed keyleds
 
@@ -279,24 +283,28 @@ fi
 
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
     paru -S --needed tilix
-    mkdir -p ~/.config/tilix/schemes
-    wget  -qO $HOME"/.config/tilix/schemes/afterglow.json" https://git.io/v7QVD
-    wget  -qO $HOME"/.config/tilix/schemes/adventuretime.json" https://git.io/v7QVg
-    wget  -qO $HOME"/.config/tilix/schemes/argonaut.json" https://git.io/v7QV5
-    wget  -qO $HOME"/.config/tilix/schemes/arthur.json" https://git.io/v7QV1
-    wget  -qO $HOME"/.config/tilix/schemes/atom.json" https://git.io/v7Q27
-    wget  -qO $HOME"/.config/tilix/schemes/birds-of-paradise.json" https://git.io/v7Q2x
-    wget  -qO $HOME"/.config/tilix/schemes/blazer.json" https://git.io/v7Q2N
-    wget  -qO $HOME"/.config/tilix/schemes/broadcast.json" https://git.io/v7QaU
-    wget  -qO $HOME"/.config/tilix/schemes/brogrammer.json" https://git.io/v7Qa3
-    wget  -qO $HOME"/.config/tilix/schemes/chalk.json" https://git.io/v7Q2A
-    wget  -qO $HOME"/.config/tilix/schemes/chalkboard.json" https://git.io/v7Q2h
-    wget  -qO $HOME"/.config/tilix/schemes/ciapre.json" https://git.io/v7Qae
-    wget  -qO $HOME"/.config/tilix/schemes/darkside.json" https://git.io/v7QVV
-    wget  -qO $HOME"/.config/tilix/schemes/dimmed-monokai.json" https://git.io/v7QaJ
-    wget  -qO $HOME"/.config/tilix/schemes/dracula.json" https://git.io/v7QaT
-    wget  -qO $HOME"/.config/tilix/schemes/hardcore.json" https://git.io/v7QaY
-    wget  -qO $HOME"/.config/tilix/schemes/oceanic-next.json" https://git.io/v7QaA
+
+    cd Code/
+    git clone https://github.com/Gogh-Co/Gogh.git gogh
+    cd gogh/installs/
+    export TERMINAL="tilix"
+    ./afterglow.sh
+    ./argonaut.sh
+    ./atom.sh
+    ./blazer.sh
+    ./broadcast.sh
+    ./chalk.sh
+    ./chalkboard.sh
+    ./ciapre.sh
+    ./darkside.sh
+    ./dimmed-monokai.sh
+    ./dracula.sh
+    ./flat-remix.sh
+    ./hardcore.sh
+    ./oceanic-next.sh
+    ./tokyo-night-storm.sh
+    ./tokyo-night.sh
+    cd ~
 fi
 
 # none, power-profiles-daemon, tlp, auto-cpufreq, auto-cpufreq+tlp
@@ -365,9 +373,17 @@ nvim +PlugInstall +q2
 if [ "$gnome" = true ]; then
     pipx install gnome-extensions-cli --system-site-packages
 
-    gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
-    gext enable user-theme@gnome-shell-extensions.gcampax.github.com
+    gext disable apps-menu@gnome-shell-extensions.gcampax.github.com
+    gext disable auto-move-windows@gnome-shell-extensions.gcampax.github.com
+    gext disable launch-new-instance@gnome-shell-extensions.gcampax.github.com
+    gext disable places-menu@gnome-shell-extensions.gcampax.github.com
     gext enable drive-menu@gnome-shell-extensions.gcampax.github.com
+    gext disable screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com
+    gext enable user-theme@gnome-shell-extensions.gcampax.github.com
+    gext disable window-list@gnome-shell-extensions.gcampax.github.com
+    gext enable windowsNavigator@gnome-shell-extensions.gcampax.github.com
+    gext disable workspace-indicator@gnome-shell-extensions.gcampax.github.com
+
     # Download AATWS - Advanced Alt-Tab Window Switcher
     gext install advanced-alt-tab@G-dH.github.com
     gext disable advanced-alt-tab@G-dH.github.com
@@ -397,7 +413,7 @@ if [ "$gnome" = true ]; then
     gext disable compiz-windows-effect@hermes83.github.com
     # Download Coverflow Alt-Tab
     gext install CoverflowAltTab@palatis.blogspot.com
-    gext enable CoverflowAltTab@palatis.blogspot.com
+    gext disable CoverflowAltTab@palatis.blogspot.com
     # Download Custom Accent Colors
     gext install custom-accent-colors@demiskp
     gext disable custom-accent-colors@demiskp
@@ -419,12 +435,12 @@ if [ "$gnome" = true ]; then
     # Download GSConnect
     gext install gsconnect@andyholmes.github.io
     gext disable gsconnect@andyholmes.github.io
-    # Download Just Perfection
-    gext install just-perfection-desktop@just-perfection
-    gext enable just-perfection-desktop@just-perfection
     # Download Gtk4 Desktop Icons NG
     gext install gtk4-ding@smedius.gitlab.com
     gext disable gtk4-ding@smedius.gitlab.com
+    # Download Just Perfection
+    gext install just-perfection-desktop@just-perfection
+    gext enable just-perfection-desktop@just-perfection
     # Download Lock Keys
     gext install lockkeys@vaina.lt
     gext enable lockkeys@vaina.lt
@@ -461,12 +477,15 @@ if [ "$gnome" = true ]; then
     # Download Unblank lock screen
     gext install unblank@sun.wxg@gmail.com
     gext enable unblank@sun.wxg@gmail.com
-    # Download V-Shell (Vertical Workspaces)
-    gext install vertical-workspaces@G-dH.github.com
-    gext disable vertical-workspaces@G-dH.github.com
     # Download Vitals
     gext install Vitals@CoreCoding.com
     gext disable Vitals@CoreCoding.com
+    # Download V-Shell (Vertical Workspaces)
+    gext install vertical-workspaces@G-dH.github.com
+    gext disable vertical-workspaces@G-dH.github.com
+    # Download Workspace Matarix
+    gext install wsmatrix@martin.zurowietz.de
+    gext disable wsmatrix@martin.zurowietz.de
 
     cd Code/
     git clone https://github.com/DaRubyMiner360/soft-brightness.git
@@ -578,6 +597,7 @@ if ! grep -q "source $HOME/rubyarch.bashrc" ~/.bashrc; then
 source $HOME/rubyarch.bashrc
 EOT
 fi
+rm -f ~/rubyarch.bashrc
 cat <<EOT > ~/rubyarch.bashrc
 EOT
 if [ "$install_pentablet" = true ]; then
@@ -592,12 +612,16 @@ alias ls="ls --color=auto -a"
 alias grep="grep --color=auto"
 
 alias cpa="rsync -ah --progress"
+alias cpab="rsync -ah --info=progress2 --no-inc-recursive --progress"
 alias cpap="rsync -ah --progress --partial --append"
+alias cpapb="rsync -ah --info=progress2 --no-inc-recursive --progress --partial --append"
 
 alias clipboard="wl-copy --trim-newline"
 alias clipboardn="wl-copy"
 alias clip="clipboard"
 alias clipn="clipboardn"
+
+export TERMINAL="tilix"
 
 EOT
 if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
@@ -620,7 +644,7 @@ unzip Meslo.zip
 rm Meslo.zip
 fc-cache -vf
 cd ~
-paru -S --needed noto-fonts-emoji ttf-joypixels ttf-twemoji otf-openmoji ttf-symbola ttf-twemoji-color-git
+paru -S --needed noto-fonts-emoji ttf-joypixels ttf-twemoji otf-openmoji ttf-symbola ttf-twemoji-color-git vscode-codicons-git
 
 wget https://gist.githubusercontent.com/DaRubyMiner360/cc707b5ba7ed68e31f7fb8fc99def457/raw/full-backup
 dconf load / < full-backup
