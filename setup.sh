@@ -352,7 +352,7 @@ if [[ $complexity = "full" ]] || [[ $complexity = "lite" ]]; then
     xhost -
 fi
 
-pip install Pillow
+paru -S --needed python-pillow
 
 if [ "$install_pentablet" = true ]; then
     # Install drivers for my drawing tablet
