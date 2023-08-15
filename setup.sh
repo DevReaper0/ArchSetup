@@ -543,20 +543,14 @@ if [ "$gnome" = true ]; then
         gext disable pop-shell@system76.com
     fi
 
-    cd Code/
-    git clone https://github.com/vinceliuice/Colloid-icon-theme
-    cd Colloid-icon-theme/
-    ./install.sh
-    cd ~/Code/
-    rm -rf Colloid-icon-theme/
-    cd ~
+    paru -S --needed ostree appstream-glib stylepak-git
 
     cd Code/
-    git clone https://github.com/vinceliuice/Lavanda-gtk-theme
-    cd Lavanda-gtk-theme/
+    git clone https://github.com/DaRubyMiner360/GNOME-GlobalThemes.git
+    cd GNOME-GlobalThemes/
     ./install.sh
     cd ~/Code/
-    rm -rf Lavanda-gtk-theme/
+    rm -rf GNOME-GlobalThemes/
     cd ~
 
     cd Code/
@@ -580,6 +574,9 @@ if [ "$gnome" = true ]; then
     cd ~/Code/
     rm -rf Marble-shell-theme/
     cd ~
+
+    # TODO: Ask the user which theme they want to use and then switch to it after setting every setting in dconf
+    global-theme switch --theme lavanda-sea
 
     sudo cp -r ~/.themes/* /usr/share/themes/
     sudo cp -r ~/.local/share/icons/* /usr/share/icons/
