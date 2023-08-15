@@ -387,6 +387,9 @@ if [ "$gnome" = true ]; then
     # Download AATWS - Advanced Alt-Tab Window Switcher
     gext install advanced-alt-tab@G-dH.github.com
     gext disable advanced-alt-tab@G-dH.github.com
+    # Download Always Show Titles In Overview
+    gext install Always-Show-Titles-In-Overview@gmail.com
+    gext disable Always-Show-Titles-In-Overview@gmail.com
     # Download AppIndicator and KStatusNotifierItem Support
     gext install appindicatorsupport@rgcjonas.gmail.com
     gext enable appindicatorsupport@rgcjonas.gmail.com
@@ -404,7 +407,7 @@ if [ "$gnome" = true ]; then
     gext enable click-to-close-overview@l3nn4rt.github.io
     # Download Clipboard Indicator
     gext install clipboard-indicator@tudmotu.com
-    gext enable clipboard-indicator@tudmotu.com
+    gext disable clipboard-indicator@tudmotu.com
     # Download Compiz alike magic lamp effect
     gext install compiz-alike-magic-lamp-effect@hermes83.github.com
     gext disable compiz-alike-magic-lamp-effect@hermes83.github.com
@@ -434,7 +437,7 @@ if [ "$gnome" = true ]; then
     gext enable gnome-ui-tune@itstime.tech
     # Download GSConnect
     gext install gsconnect@andyholmes.github.io
-    gext disable gsconnect@andyholmes.github.io
+    gext enable gsconnect@andyholmes.github.io
     # Download Gtk4 Desktop Icons NG
     gext install gtk4-ding@smedius.gitlab.com
     gext disable gtk4-ding@smedius.gitlab.com
@@ -453,9 +456,15 @@ if [ "$gnome" = true ]; then
     # Download Night Theme Switcher
     gext install nightthemeswitcher@romainvigier.fr
     gext disable nightthemeswitcher@romainvigier.fr
+    # Download OpenWeather
+    gext install openweather-extension@jenslody.de
+    gext disable openweather-extension@jenslody.de
     # Download Order Gnome Shell extensions
     gext install order-extensions@wa4557.github.com
     gext enable order-extensions@wa4557.github.com
+    # Download Pano - Clipboard Manager
+    gext install pano@elhan.io
+    gext enable pano@elhan.io
     # Download Quick Close in Overview
     gext install middleclickclose@paolo.tranquilli.gmail.com
     gext enable middleclickclose@paolo.tranquilli.gmail.com
@@ -471,9 +480,6 @@ if [ "$gnome" = true ]; then
     # Download Transparent Window Moving
     gext install transparent-window-moving@noobsai.github.com
     gext enable transparent-window-moving@noobsai.github.com
-    # Download Tray Icons: Reloaded
-    gext install trayIconsReloaded@selfmade.pl
-    gext disable trayIconsReloaded@selfmade.pl
     # Download Unblank lock screen
     gext install unblank@sun.wxg@gmail.com
     gext enable unblank@sun.wxg@gmail.com
